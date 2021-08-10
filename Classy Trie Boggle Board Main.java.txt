@@ -1,0 +1,686 @@
+/*
+Classy Trie Boggle Board (in Java)
+
+Looks like this fun experiment is finally done; It works:
+
+Novel features:
+- Using a trie to quickly look up acceptable letters (experiment main purpose).
+- Using a perimeter around active board, to avoid testing array indices ranges.
+- Salting each board, then checking all salted words were found, as a selftest.
+
+I spent about 2? days here doing the Java version,
+plus about 2-3 prior days on a bad C# abomination.
+
+Part of a Sample output:
+
+boardSize = 30
+Salted word: inapprehensible
+Salted word: petrochemical
+Salted word: unmechanical
+Salted word: inoffensive
+Salted word: halberdier
+Salted word: trebucbet
+Salted word: soapfish
+Salted word: valeque
+Salted word: forced
+Salted word: apres
+===========================================================================================
+                                                                                d
+                                                                                   e
+                                                                             f  c
+                                            e  u                          o  r
+                                            e  q
+                                         l     v                                      e  l
+                                l  a        a                                            b
+                             i  c                                                     s  i
+                                m  e                                                     n
+                                p     h                                            r  e  e
+                                e     c                                         p  n  i  h
+                                t  o                                               p  a
+                             i  p  r                                         t
+                             f  s  a                                            r  e  b  u
+                             s  o  h                                            t  e  b  c
+
+
+
+                       e
+                       v
+                 n  s  i                                                        l  b
+                 e                                                              e  a  h
+                 f  n                                                              r
+                 f  o  i                                                           d  i
+                                                        c  h  a                          e
+                                                        n  e     n  i                    r
+                                                        m  u  a  c
+                                                           l
+                                r  e
+                             a  p     s
+===========================================================================================
+===========================================================================================
+  y  x  e  b  k  a  x  j  x  k  y  f  m  q  x  z  h  n  k  d  v  d  r  x  l  o  d  v  g  c
+  t  p  d  j  k  m  k  p  f  o  n  p  y  x  w  z  p  v  e  q  s  u  d  d  r  f  d  e  s  e
+  j  h  u  q  c  v  o  o  i  q  i  v  b  c  m  m  o  k  h  z  x  m  q  n  l  f  c  m  x  p
+  j  d  c  q  q  m  e  o  o  i  g  p  t  a  e  u  g  d  t  a  o  s  x  i  o  r  p  m  f  b
+  d  r  c  v  p  x  u  n  f  u  g  t  h  m  e  q  c  c  r  k  k  r  c  s  g  t  w  e  u  k
+  w  o  k  c  z  k  v  o  c  g  f  o  g  l  u  v  n  s  n  m  d  c  h  k  f  m  w  y  e  l
+  j  c  z  q  z  o  n  f  y  b  l  a  i  u  a  r  l  y  m  u  s  k  d  u  e  v  x  t  f  b
+  h  f  p  r  w  s  m  r  f  i  c  l  s  a  e  z  w  g  a  u  u  n  k  m  g  m  p  t  s  i
+  s  b  w  g  d  y  t  x  i  z  m  e  p  d  w  y  c  u  o  w  d  o  r  t  x  u  w  k  j  n
+  r  h  r  v  n  z  m  m  d  t  p  w  h  y  c  i  f  u  z  m  x  k  f  l  p  q  g  r  e  e
+  a  p  q  z  s  r  x  c  w  c  e  t  c  h  s  e  j  h  i  n  o  k  q  a  v  z  p  n  i  h
+  j  s  a  q  g  j  z  p  s  m  t  o  i  n  s  k  z  w  d  p  x  r  z  n  m  x  c  p  a  u
+  n  k  u  p  p  s  i  u  z  i  p  r  h  n  x  w  y  e  j  y  m  x  g  j  p  t  d  p  h  q
+  j  q  m  q  k  h  y  y  h  f  s  a  w  z  i  b  p  z  k  r  e  y  l  j  r  p  r  e  b  u
+  z  d  i  b  e  k  k  e  m  s  o  h  k  m  f  c  n  u  g  h  r  e  v  s  y  l  t  e  b  c
+  a  i  i  c  p  o  h  b  s  a  y  m  y  j  h  e  v  b  j  o  q  x  e  j  r  b  g  o  v  p
+  y  g  w  d  t  o  m  q  k  a  x  f  s  r  p  r  u  l  o  t  s  d  j  p  f  h  t  u  i  i
+  e  o  z  a  g  k  j  l  e  i  r  u  t  g  h  e  p  p  e  t  l  i  x  k  w  t  q  m  l  h
+  l  j  r  v  v  a  z  e  j  s  k  d  m  k  e  k  t  b  s  y  h  w  b  z  d  g  a  f  x  y
+  a  x  m  d  l  u  g  v  r  o  h  i  i  i  o  h  h  a  s  r  k  e  g  e  h  p  u  f  z  p
+  y  x  o  f  e  n  s  i  n  h  h  o  h  v  j  b  i  j  u  b  w  p  m  w  b  x  l  b  r  e
+  z  a  r  h  m  e  o  o  r  e  x  x  y  q  j  f  o  f  k  w  n  z  l  p  q  e  e  a  h  k
+  f  e  y  g  g  f  n  n  n  s  n  f  i  j  a  d  r  i  t  p  k  g  i  i  c  y  g  r  r  p
+  k  b  t  g  f  f  o  i  j  z  f  o  f  s  w  e  j  e  n  k  z  l  x  d  z  g  h  d  i  m
+  f  o  u  h  u  w  u  c  h  m  g  b  b  f  d  f  d  r  c  h  a  l  w  u  c  p  d  q  m  e
+  f  a  k  k  x  d  k  z  i  y  c  m  a  w  g  h  c  v  n  e  k  n  i  e  x  z  j  k  n  r
+  v  w  p  l  k  r  q  t  k  h  z  l  a  u  a  v  t  h  m  u  a  c  c  q  l  d  j  x  g  m
+  k  c  n  d  o  m  n  d  g  h  v  u  h  h  s  v  n  z  h  l  y  x  a  c  r  e  z  p  b  p
+  w  n  x  j  a  t  e  c  l  z  r  e  v  j  d  r  i  q  s  d  d  x  x  h  t  j  h  w  u  a
+  f  n  i  m  a  x  s  e  v  a  p  c  s  q  a  v  n  y  i  g  y  s  f  p  v  h  d  e  z  i
+===========================================================================================
+SOLVER FOUND: bed
+SOLVER FOUND: amok
+SOLVER FOUND: yon
+SOLVER FOUND: ken
+SOLVER FOUND: den
+SOLVER FOUND: dum
+SOLVER FOUND: dud
+SOLVER FOUND: drum
+SOLVER FOUND: drums
+SOLVER FOUND: drums
+SOLVER FOUND: rus
+SOLVER FOUND: rum
+SOLVER FOUND: rumor
+SOLVER FOUND: rudd
+SOLVER FOUND: rudd
+SOLVER FOUND: rudd
+SOLVER FOUND: lord
+SOLVER FOUND: lorn
+SOLVER FOUND: lode
+SOLVER FOUND: lode
+SOLVER FOUND: old
+SOLVER FOUND: orlon
+SOLVER FOUND: off
+SOLVER FOUND: ode
+SOLVER FOUND: odd
+SOLVER FOUND: odd
+SOLVER FOUND: ode
+...
+SOLVER FOUND: swab
+SOLVER FOUND: swash
+SOLVER FOUND: sabr
+SOLVER FOUND: sash
+SOLVER FOUND: saw
+SOLVER FOUND: love
+SOLVER FOUND: love
+Doing 100 boards of sizes 15 to 30 took 9540 ms, had 0 failures.
+boardSizeHistogram = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,6,4,9,2,6,7,8,2,6,4,8,10,11,5,8]
+
+ */
+
+
+package com.company;
+
+import java.io.*;
+import java.util.*;
+import java.util.regex.Pattern;
+
+class TrieNode {
+    public boolean endsString;
+    public int[] nextNodeForA2Z;
+    public String prefixToHere;
+
+    // I don't really need the prefix in every node,
+    // just those where endsString; Let my user set.
+    // So, removed 'String prefixToHere' from Ctor:
+    public TrieNode() {
+        this.nextNodeForA2Z = new int[26];
+        this.prefixToHere = "";
+        this.endsString = false;
+    }
+}
+
+class TrieList {
+
+    public Vector<TrieNode> trieNodeVector; // at [0] will be the root node
+
+    Random rnd = new Random();
+
+    public TrieList() {
+        trieNodeVector = new Vector<>();
+        trieNodeVector.add(new TrieNode());
+    }
+
+    public void AddWord(String s) {
+        int trieNodeVectorIndex = 0; // atop loop, is pointing at root node
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            // String prefixToHere = s.substring(0, i+1); // exclusive of endIndex
+            int letterIndex = c - 'a';
+            if (trieNodeVector.get(trieNodeVectorIndex).nextNodeForA2Z[letterIndex] == 0) {
+                // The desired next node in this path does not yet exist.
+                // Set this integer index to point just past the current end of vector.
+                trieNodeVector.get(trieNodeVectorIndex).nextNodeForA2Z[letterIndex] = trieNodeVector.size();
+                // And then, place a new node there. All members will be zero/false.
+                // Old way: trieNodeVector.add(new TrieNode(prefixToHere));
+                trieNodeVector.add(new TrieNode());
+            }
+            // now this node either existed, or I just created it.
+            // Advance my local trieNodeVectorIndex one letter deeper into the Trie:
+            trieNodeVectorIndex = trieNodeVector.get(trieNodeVectorIndex).nextNodeForA2Z[letterIndex];
+        }
+        // Mark that final node as the end of a string
+        trieNodeVector.get(trieNodeVectorIndex).endsString = true;
+        // and for my convenience, save the prefix for completed strings:
+        trieNodeVector.get(trieNodeVectorIndex).prefixToHere = s;
+    }
+
+    static int dumpLimit = 10;
+
+    public void DumpTrieList() {
+        // diagnostic to prove the trie.
+        int trieNodeVectorIndex = 0; // atop DFS traversal, is pointing at root node
+        // System.out.println("Goodbye. Done.");
+        recursiveDumpTrieList(trieNodeVectorIndex);
+    }
+
+    private void recursiveDumpTrieList(int trieNodeVectorIndex) {
+        if (dumpLimit < 0)
+            return;
+        // first, print current completed word if it is a complete word.
+        if (trieNodeVector.get(trieNodeVectorIndex).endsString) {
+            System.out.println(trieNodeVector.get(trieNodeVectorIndex).prefixToHere);
+            if (--dumpLimit < 0)
+                return;
+        }
+        // second, continue DFS into Trie.
+        for (int i = 0; i < 26; i++) {
+            int j = trieNodeVector.get(trieNodeVectorIndex).nextNodeForA2Z[i];
+            if (j > 0) {
+                recursiveDumpTrieList(j);
+            }
+        }
+    }
+
+    public Vector<String> getRandomWordsLongToShort(int nWords) {
+        Vector<String> retn = new Vector<String>();
+
+        // take from roughly equally spaced parts of list
+        int nStep = trieNodeVector.size() / nWords;
+
+        // Present unique words, then sort in long to short order
+        HashSet<String> uniques = new HashSet<>();
+        TreeMap<Integer,String> tm = new TreeMap<Integer, String>();
+
+        for(int i = 0; i < nWords; i++) {
+            // random starting place
+            int index = nStep * i + rnd.nextInt(nStep);
+            // find next whole word
+            while(++index < trieNodeVector.size()) {
+                if(trieNodeVector.get(index).endsString) {
+                    uniques.add(trieNodeVector.get(index).prefixToHere);
+                    break;
+                }
+                // else, continue
+            }
+        }
+        // sort by descending lengths
+        for(String s : uniques) {
+            tm.put(100 - s.length(), s);
+        }
+        for (Map.Entry<Integer, String> e : tm.entrySet()) {
+            retn.add(e.getValue());
+        }
+        return retn;
+    }
+}
+
+class BoggleBoard {
+
+    int boardSize = 1;
+
+    char[][] theBoard = new char[1][1];
+
+    boolean[][] knockOut = new boolean[1][1];
+
+    Random rnd = new Random();
+
+    Vector<String> saltedWords = new Vector<String>();
+
+    Vector<String> foundWords = new Vector<String>();
+
+    public BoggleBoard(int n) {
+        boardSize = n;
+        // make a 1 cell border around board, to never need to do any array limit checks.
+        theBoard = new char[n + 2][n + 2];
+        // therefore, board will be indexed as [1..n][1..n].
+        // true in knockOut marks cells that cannot be used, including around perimeter.
+        knockOut = new boolean[n + 2][n + 2];
+        // Since the active board is addressed from [1..n][1..n],
+        // the perimeter past board is at [0] or [n+1] both ways.
+        // debugging showed these perimeter trues were accurate:
+        for (int i = 0; i < n + 2; i++) {
+            knockOut[i][0] = true;
+            knockOut[i][n + 1] = true;
+            knockOut[0][i] = true;
+            knockOut[n + 1][i] = true;
+        }
+    }
+
+    public void saltBoardWithWords(Vector<String> words) {
+        // Best way I can test code is finding all of, say, 20 words.
+        // First, place ascii ' ' into all cells of board.
+        for (int i = 1; i <= boardSize; i++) {
+            for (int j = 1; j <= boardSize; j++) {
+                theBoard[i][j] = ' ';
+            }
+        }
+
+        // Secondly, randomly snake in the passed words
+        for (String s : words) {
+
+            // find an open starting cell [eyeCell][jayCell]
+            // these i and/or j are throwing, out of range.
+            // Perhaps by typo, I assigned into old i or j?
+            int eyeCell = 0;
+            int jayCell = 0;
+
+            int limitStartingCell = boardSize * boardSize;
+            for (; ; ) {
+                if(--limitStartingCell == 0) {
+                    System.out.println("Cannot place any more words: Board is too full.");
+                    return;
+                }
+                // these initial eyeCell,jayCell are not past board:
+                eyeCell = 1 + rnd.nextInt(boardSize);
+                jayCell = 1 + rnd.nextInt(boardSize);
+                if (theBoard[eyeCell][jayCell] == ' ')
+                    break; // found a good cell
+            }
+
+            // I keep forgetting that in Java, a String is not iterable:
+            //for(char c : s) {
+            // And why does Java use length() for String instead of size()?
+
+            boolean cannotPlaceWord = false;
+            for (int k = 0; k < s.length(); k++) {
+                // and why doesn't Java support string[k]!?
+                char c = s.charAt(k);
+                // loop above proved first [eyeCell][jayCell] is empty
+                // loop below will prove each next [eyeCell][jayCell] is empty
+                theBoard[eyeCell][jayCell] = c;
+
+                // time for a mid-loop exit check
+                if(k == s.length())
+                    break;
+
+                // find a next empty cell for next letter
+                int limitEightWaysRnd = 16;
+                int emm = 0;
+                int en = 0;
+
+                // Interior of loop has an exit limit ~like: l < limitEightWaysRnd.
+                // What hours of anguished debugging did extra limit up here cause!
+                for (int l = 0; ; l++) {
+                    int direction = rnd.nextInt(8);
+                    switch (direction) {
+                        case 0:
+                            emm = -1;
+                            en = -1;
+                            break;
+                        case 1:
+                            emm = 0;
+                            en = -1;
+                            break;
+                        case 2:
+                            emm = 1;
+                            en = -1;
+                            break;
+                        case 3:
+                            emm = 1;
+                            en = 0;
+                            break;
+                        case 4:
+                            emm = 1;
+                            en = 1;
+                            break;
+                        case 5:
+                            emm = 0;
+                            en = 1;
+                            break;
+                        case 6:
+                            emm = -1;
+                            en = 1;
+                            break;
+                        case 7:
+                            emm = -1;
+                            en = 0;
+                            break;
+                    }
+
+                    // debugs:
+                    /*
+                    System.out.println("Now, eyeCell = " + eyeCell + ", emm = " + emm + ", jayCell = " + jayCell + ", en = " + en);
+                    if(
+                            eyeCell+emm < 0 || eyeCell+emm >= boardSize+2
+                        ||
+                            jayCell+en < 0 || jayCell+en >= boardSize+2
+                    ) {
+                        // How can I reach this OOB, and after k == 6,
+                        // and not have entered the other GOING OOB?
+                        // perhaps by a typo on letters i and/or j?
+                        System.out.println("OOB at eyeCell = " + eyeCell + ", emm = " + emm + ", jayCell = " + jayCell + ", en = " + en);
+                        // put a breakpoint here:
+                        int x = 0;
+                    }
+                     */
+
+                    // Exception, this next line is outside of array!?
+                    // How can that be, if eyeCell,jayCell were inside board,
+                    // and eyeCell,jayCell only ever advance by emm,en == -1,0,+1,
+                    // which must fall in or on the 1-past-board perimeter,
+                    // by merit of this very next line in question:
+                    if(knockOut[eyeCell + emm][jayCell + en]) {
+                        // debug... System.out.println("Knockout[" + (eyeCell + emm) + "][" + (jayCell + en) + "] is true");
+                        // this continues the loop on l, to pick another direction.
+                        // And, I have not yet changed my existing eyeCell and jayCell.
+                        // And debugging shows the knockOut array is right.
+                        // WHAT!? prints IS TRUE HERE, but next I see i or j CHANGED anyway!
+                        // continue SHOULD mean try another loop of l, except on last loop!
+                        // set these to invalid 0,0 to signal bad exit from loop:
+                        emm = 0;
+                        en = 0;
+                        continue; // such next cell would go outside nominal board edge
+                    } else {
+                        // debug... System.out.println("Knockout[" + (eyeCell + emm) + "][" + (jayCell + en) + "] is false");
+                    }
+                    // this other test actually s/b sufficient, as perimeter holds '\0'.
+                    if (theBoard[eyeCell + emm][jayCell + en] == ' ') {
+                        break; // such next cell is empty, usable
+                    }
+                    // AHA, Bug: Original loop limit in the FOR stmt misses doing this =true:
+                    if(--limitEightWaysRnd <= 0) {
+                        cannotPlaceWord = true;
+                        break; // from loop on l
+                    }
+                }
+                if(cannotPlaceWord)
+                    break; // from loop on k
+
+                // advance eyeCell,jayCell to this new empty cell within board.
+                eyeCell += emm;
+                jayCell += en;
+
+                // a second set of debugs after the addition:
+                /*
+                System.out.println("Changed eyeCell = " + eyeCell + ", (emm = " + emm + "), jayCell = " + jayCell + ", (en = " + en + ")");
+                if(eyeCell < 0 || eyeCell >= boardSize+2
+                    ||
+                    jayCell < 0 || jayCell >= boardSize+2
+                ) {
+                    System.out.println("GOING OOB at eyeCell = " + eyeCell + ", (emm = " + emm + "), jayCell = " + jayCell + ", (en = " + en + ")");
+                    // put a breakpoint here:
+                    int x = 0;
+                }
+                 */
+            }
+            // before returning...
+            if(cannotPlaceWord) {
+                System.out.println("Cannot place whole word: " + s);
+                // OH! Didn't we break here!?
+                // No, there is no surrounding loop.
+            }
+            else {
+                System.out.println("Salted word: " + s);
+                saltedWords.add(s);
+            }
+        }
+    }
+
+    public void fillBoardWithRandoms() {
+        // except amy cells that have already been salted.
+        for (int i = 1; i <= boardSize; i++) {
+            for (int j = 1; j <= boardSize; j++) {
+                if (theBoard[i][j] == ' ') {
+                    theBoard[i][j] = (char) ('a' + rnd.nextInt(26));
+                }
+            }
+        }
+    }
+
+    public void printBoard() {
+        for (int k = 0; k < boardSize; k++) {
+            System.out.print("===");
+        }
+        System.out.println("=");
+        for (int i = 1; i <= boardSize; i++) {
+            for (int j = 1; j <= boardSize; j++) {
+                System.out.print("  " + theBoard[i][j]);
+            }
+            System.out.println("");
+        }
+        for (int k = 0; k < boardSize; k++) {
+            System.out.print("===");
+        }
+        System.out.println("=");
+    }
+
+    public void solveBoard(TrieList trieList) {
+        // Finally. the algorithm I came to write!
+
+        // Outer loop will scan over all board cells.
+        for (int i = 1; i <= boardSize; i++) {
+            for (int j = 1; j <= boardSize; j++) {
+
+                // I see a need for a DFS recursive call,
+                // to check current letter against Trie,
+                // and call itself for all of its neighbors.
+                recursiveSolveBoard(trieList, i, j, 0);
+
+            }
+        }
+    }
+
+    public void recursiveSolveBoard(TrieList trieList, int i, int j, int ijTrieNodeIndex) {
+        // for current cell at passed i,j to be valid, and to continue working,
+        // must find the letter at i,j exists AS A NEXT NODE in Trie[passed index]:
+        char c = theBoard[i][j];
+        int ci = c - 'a';
+        int nextIndex = trieList.trieNodeVector.get(ijTrieNodeIndex).nextNodeForA2Z[ci];
+        if(nextIndex == 0)
+            return;
+
+        // 1. See if current letter completes any dictionary word.
+        if(trieList.trieNodeVector.get(nextIndex).endsString) {
+            String foundWord = trieList.trieNodeVector.get(nextIndex).prefixToHere;
+            System.out.println("SOLVER FOUND: " + foundWord);
+            foundWords.add(foundWord);
+            // but do not stop, continue working neighbors.
+        }
+
+        // 2. See if any neighbor can be used to continue working.
+        // loop over all eight directions.
+        // This will make a DFS algorithm.
+
+        knockOut[i][j] = true; // Cannot re-use this cell during this word.
+
+        for (int direction = 0; direction < 8; direction++) {
+            int emm = 0;
+            int en = 0;
+            switch (direction) {
+                case 0:
+                    emm = -1;
+                    en = -1;
+                    break;
+                case 1:
+                    emm = 0;
+                    en = -1;
+                    break;
+                case 2:
+                    emm = 1;
+                    en = -1;
+                    break;
+                case 3:
+                    emm = 1;
+                    en = 0;
+                    break;
+                case 4:
+                    emm = 1;
+                    en = 1;
+                    break;
+                case 5:
+                    emm = 0;
+                    en = 1;
+                    break;
+                case 6:
+                    emm = -1;
+                    en = 1;
+                    break;
+                case 7:
+                    emm = -1;
+                    en = 0;
+                    break;
+            }
+            if(knockOut[i + emm][j + en]) {
+                continue; // such next cell would go outside nominal board edge
+            }
+            // go further, test this neighboring letter.
+            recursiveSolveBoard(trieList, i + emm, j + en, nextIndex);
+        }
+
+        knockOut[i][j] = false; // backtracking, this cell is again available
+
+    }
+
+    public int verifyResults() {
+        int missingWords = 0;
+        // make sure that
+        // foundWords
+        // includes all in
+        // saltedWords
+        for(String s : saltedWords) {
+            if(! foundWords.contains(s)) {
+                missingWords++;
+                System.out.println("FAILURE: Salted word not found: " + s);
+            }
+        }
+
+        return missingWords;
+    }
+}
+
+public class Main {
+
+    static TrieList trieList = new TrieList();
+
+    public static void main(String[] args) {
+        // If I do try...catch, I get no stack trace while debugging....
+        try {
+            System.out.println("Hello World!");
+
+            // build the trie just once above all test loops
+            // String[] aFewWords = {"one", "two", "three", "four"};
+            // for (var s : aFewWords)
+                // trieList.AddWord(s);
+
+            importWordList(); // 70K words
+
+            // trieList.DumpTrieList();
+            // Number of suitable input words = 67191
+            // Number of nodes in trieList = 215668
+
+            Random rnd = new Random();
+            long msStart = System.currentTimeMillis();
+            int missingWords = 0;
+            int minBoardSize = 15;
+            int maxBoardSize = 30;
+            int [] boardSizeHistogram = new int [1 + maxBoardSize];
+            // new outer loop to test algorithm a long time
+            int totalTimes = 100;
+            for(int times = 0; times < totalTimes; times++) {
+
+                int boardSize = minBoardSize + rnd.nextInt(1 + maxBoardSize - minBoardSize );
+                boardSizeHistogram[boardSize]++;
+                BoggleBoard boggleBoard = new BoggleBoard(boardSize);
+                System.out.println("boardSize = " + boardSize);
+
+                if(false)
+                {
+                    // initial debug
+                    // Vector<String> fourWords = new Vector<String>();
+                    // fourWords.add("one");
+                    // fourWords.add("two");
+                    // fourWords.add("three");
+                    // fourWords.add("four");
+                    // boggleBoard.saltBoardWithWords(fourWords);
+                }
+
+                // if(false)
+                {
+                    Vector<String> wordList = trieList.getRandomWordsLongToShort(20);
+                    boggleBoard.saltBoardWithWords(wordList);
+                }
+                boggleBoard.printBoard();
+
+                boggleBoard.fillBoardWithRandoms();
+                boggleBoard.printBoard();
+
+                // God I loved globals for 40 years.
+                // But now, see what you made me do:
+                boggleBoard.solveBoard(trieList);
+
+                missingWords += boggleBoard.verifyResults();
+            }
+
+            long msDone = System.currentTimeMillis();
+            System.out.println("Doing " + totalTimes + " boards of sizes " + minBoardSize + " to " + maxBoardSize
+                    + " took " + (msDone-msStart) + " ms, had " + missingWords + " failures.");
+
+            System.out.print("boardSizeHistogram = [");
+            for(int i = 0; i <= maxBoardSize; i++) {
+                if(i > 0)
+                    System.out.print(",");
+                System.out.print(boardSizeHistogram[i]);
+            }
+            System.out.println("]");
+
+            System.out.println("Goodbye. Done.");
+        } catch (Exception e) {
+            System.out.println("Exception => " + e.getMessage());
+        }
+    }
+
+    static void importWordList() {
+        // I found about a 70K lowercaee+punts word list online
+        // at http://www-personal.umich.edu/~jlawler/wordlist
+        String path = "C:\\a\\t\\wordlist - 69903 words - English+puncts - from umich.edu ~jlawler.txt";
+
+        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+            String line;
+            Pattern pattern = Pattern.compile("^[a-z]{3,20}$");
+            int nWords = 0;
+            while ((line = br.readLine()) != null) {
+                if (pattern.matcher(line).find()) {
+                    trieList.AddWord(line);
+                    nWords++;
+                }
+            }
+            System.out.println("Number of suitable input words = " + nWords);
+            System.out.println("Number of nodes in trieList = " + trieList.trieNodeVector.size());
+        } catch (Exception e) {
+            System.out.println(e.toString());
+            e.printStackTrace();
+        }
+
+    }
+}
